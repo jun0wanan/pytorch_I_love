@@ -94,6 +94,16 @@ def optimizer_decay():
 
         return optimizer
 
+    def adjust_lr_clevr(curr_los, prev_loss, curr_lr):
+        loss_diff = prev_loss - curr_los
+        not_improve = (
+            (loss_diff < 0.015 and prev_loss < 0.5 and curr_lr > 0.00002) or
+            (loss_diff < 0.008 and prev_loss < 0.15 and curr_lr > 0.00001) or
+            (loss_diff < 0.003 and prev_loss < 0.10 and curr_lr > 0.000005))
+
+        next_lr = curr_lr * cfg.TRAIN.SOLVER.LR_DECAY if not_improve else curr_lr
+        return next_lr
+
 def bug_free():
    #first
     assert cfg.train.k_max_clip_level <= 8
@@ -111,6 +121,8 @@ def to_Device():
             return tensor.to(device)
 
 def init_modal_weight():
+    # in module use
+    init_modules(self.modules(), w_init="xavier_uniform")
     def init_modules(modules, w_init='kaiming_uniform'):
         if w_init == "normal":
             _init = init.normal_
@@ -137,3 +149,11 @@ def init_modal_weight():
                         nn.init.zeros_(param)
                     elif 'weight' in name:
                         _init(param)
+
+def set_optimizer():
+
+    # see module's requires_grad
+    self.trainable_params = [
+            p for p in self.model.parameters() if p.requires_grad]
+    self.optimizer = torch.optim.Adam(
+            self.trainable_params, lr=cfg.TRAIN.SOLVER.LR)
