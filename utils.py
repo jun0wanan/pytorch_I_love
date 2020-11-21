@@ -58,7 +58,7 @@ def Save_Modal():
         time.sleep(10)
         torch.save(state, filename)
 
-def  visual_Train_now():
+def visual_Train_now():
     # save log_file
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s')
     logFormatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
@@ -157,3 +157,26 @@ def set_optimizer():
             p for p in self.model.parameters() if p.requires_grad]
     self.optimizer = torch.optim.Adam(
             self.trainable_params, lr=cfg.TRAIN.SOLVER.LR)
+
+def get_time():
+    tm = timer.Timer() 
+    run_duration = tm.get_duration()
+    tm.reset()
+
+def to_contiguous(tensor):
+    if tensor.is_contiguous():
+        return tensor
+    else:
+        return tensor.contiguous()
+
+def see_result():
+    def tensor2numpy(ptdata):
+        return ptdata.detach().cpu().numpy()
+    def to_data(ptdata):
+        if ptdata is None: return ptdata
+        if isinstance(ptdata, list):
+            return [tensor2numpy(dt) for dt in ptdata]
+        elif isinstance(ptdata, dict):
+            return {k:tensor2numpy(dt) for k,dt in ptdata.items()}
+        else:
+            return tensor2numpy(ptdata)
