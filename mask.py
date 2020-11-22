@@ -13,3 +13,7 @@ def mask_get():
         mask = torch.ge(tmp1, tmp2)
         attention = attention.masked_fill(mask, -1e30)
         return attention
+
+    def mask_fill():
+
+        alpha = alpha.masked_fill(feat_masks.float().eq(0), -1e9) # dimension is same

@@ -18,6 +18,12 @@ def base_code():
     alignment = torch.bmm(extended_query, weighted_keys)
 
     params.get("debug_mode", False)
+    
+    att_k = att_k.unsqueeze(1).expand_as(att_f)
+
+    q4s_feat = se_feats[:,n,:].unsqueeze(1).expand(B, nseg, -1)
+
+    att_feats = attw @ feats
 
     
 
