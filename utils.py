@@ -3,6 +3,12 @@ def getGPU():
     device = torch.device("cuda:{}".format(opt.gpu_id) if torch.cuda.is_available() else "cpu")
     opt.device = device
 
+    self.device = (
+      torch.device("cuda", self.hparams.gpu_ids[0])
+      if self.hparams.gpu_ids[0] >= 0
+      else torch.device("cpu")
+    )
+
 
 # 设置随机种子
 def setSeed():
@@ -103,6 +109,24 @@ def optimizer_decay():
 
         next_lr = curr_lr * cfg.TRAIN.SOLVER.LR_DECAY if not_improve else curr_lr
         return next_lr
+    
+    def adjust_lr_1():
+        lr_default = args.lr if eval_loader is not None else 7e-4
+        lr_decay_step = 2
+        lr_decay_rate = .25
+        lr_decay_epochs = range(10, 30, lr_decay_step) if eval_loader is not None else range(10, 20, lr_decay_step)
+        gradual_warmup_steps = [0.5 * lr_default, 1.0 * lr_default, 1.5 * lr_default, 2.0 * lr_default]
+        if epoch < 4:
+            optim.param_groups[0]['lr'] = gradual_warmup_steps[epoch]
+            lr = optim.param_groups[0]['lr']
+        elif epoch in lr_decay_epochs:
+            optim.param_groups[0]['lr'] *= lr_decay_rate
+            lr =  optim.param_groups[0]['lr']
+        else:
+            lr = optim.param_groups[0]['lr']
+
+        
+    
 
 def bug_free():
    #first
@@ -180,3 +204,7 @@ def see_result():
             return {k:tensor2numpy(dt) for k,dt in ptdata.items()}
         else:
             return tensor2numpy(ptdata)
+
+def other_():
+
+    nn.utils.clip_grad_norm(model.parameters(), 0.25)

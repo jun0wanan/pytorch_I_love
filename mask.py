@@ -17,3 +17,5 @@ def mask_get():
     def mask_fill():
 
         alpha = alpha.masked_fill(feat_masks.float().eq(0), -1e9) # dimension is same
+
+        kk = torch.masked_select(logprob_select, mask)

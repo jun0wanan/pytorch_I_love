@@ -25,6 +25,7 @@ def base_code():
 
     att_feats = attw @ feats
 
+    init_logprobs.chunk
     
 
 def base_code1():
@@ -34,3 +35,5 @@ def base_code1():
         return {k:tensor2numpy(dt) for k,dt in ptdata.items()}
     else:
         return tensor2numpy(ptdata)
+
+
